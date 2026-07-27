@@ -1,3 +1,5 @@
 .venv
 clean/
 raw/
+src/.env
+src/env
