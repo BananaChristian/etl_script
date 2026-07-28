@@ -60,10 +60,24 @@ def validate_msisdn(msisdn_column, df, strict_utel_only=False) -> pd.DataFrame:
 
     if invalid_count > 0:
         lg.log_warn(
-            f"Column '{msisdn_column}': Flagged {invalid_count} invalid MSISDN(s) as NaN"
+            f"Column '{msisdn_column}': Flagged '{invalid_count}' invalid MSISDN(s) as invalid"
         )
     else:
         lg.log_ok(f"Validated MSISDN column '{msisdn_column}'")
+
+    return df
+
+def validate_amount(amount_column,df):
+    if amount_column not in df.columns:
+        return df
+    
+    is_valid= df[amount_column] > 0
+    invalid_count = (~is_valid).sum()
+
+    df[amount_column] = df[amount_column].where(is_valid,None)
+
+    if invalid_count > 0:
+        lg.log_warn(f"Column '{amount_column}: Flagged '{invalid_count}' negative/zero amount(s) as invalid")
 
     return df
 
@@ -133,6 +147,9 @@ def transform(dataframes):
                 ) or name.lower() == "subscribers"
         
                 df = validate_msisdn(col, df, strict_utel_only=is_originator)
+
+            if "amount" in col.lower() or "fee" in col.lower() or "charge" in col.lower():
+                validate_amount(col,df)
 
         # Drop missing values
         df = df.dropna()
