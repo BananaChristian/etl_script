@@ -67,17 +67,17 @@ def validate_msisdn(msisdn_column, df, strict_utel_only=False) -> pd.DataFrame:
 
     return df
 
-def validate_amount(amount_column,df):
-    if amount_column not in df.columns:
+def validate_numeric(numeric_column,df):
+    if  numeric_column not in df.columns:
         return df
     
-    is_valid= df[amount_column] > 0
+    is_valid= df[numeric_column] > 0
     invalid_count = (~is_valid).sum()
 
-    df[amount_column] = df[amount_column].where(is_valid,None)
+    df[numeric_column] = df[numeric_column].where(is_valid,None)
 
     if invalid_count > 0:
-        lg.log_warn(f"Column '{amount_column}: Flagged '{invalid_count}' negative/zero amount(s) as invalid")
+        lg.log_warn(f"Column '{numeric_column}': Flagged '{invalid_count}' negative/zero amount(s) as invalid")
 
     return df
 
@@ -136,20 +136,29 @@ def transform(dataframes):
         lg.log_info(f"Processing dataset: {name}")
         initial_rows = len(df)
 
+
         for col in df.columns:
-            if "date" in col.lower() or "timestamp" in col.lower():
+            col_lower = col.lower()
+            valid_date_column = "date" in col_lower or "timestamp" in col_lower
+            valid_msisdn_column = "msisdn" in col_lower or "phone" in col_lower
+            valid_numeric_column = any(
+                kw in col_lower
+                for kw in ["amount", "fee", "charge", "duration", "days"]
+            )            
+
+            if valid_date_column:
                 standardize_date(col, df)
     
-            if "msisdn" in col.lower() or "phone" in col.lower():
-            # Only enforce UTEL ownership on sender/originator columns
+            if valid_msisdn_column:
+                # Only enforce UTEL ownership on sender/originator columns
                 is_originator = any(
                     kw in col.lower() for kw in ["calling", "source", "subscriber"]
                 ) or name.lower() == "subscribers"
         
                 df = validate_msisdn(col, df, strict_utel_only=is_originator)
 
-            if "amount" in col.lower() or "fee" in col.lower() or "charge" in col.lower():
-                validate_amount(col,df)
+            if valid_numeric_column:
+                df=validate_numeric(col,df)
 
         # Drop missing values
         df = df.dropna()
