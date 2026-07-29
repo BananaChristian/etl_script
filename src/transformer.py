@@ -2,8 +2,7 @@ import pandas as pd
 import logger as lg
 from pathlib import Path
 
-CURRENT_FILE = Path(__file__).resolve()
-PROJECT_ROOT= CURRENT_FILE.parent.parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 RAW_DIR= PROJECT_ROOT/"raw"
 CLEAN_DIR= PROJECT_ROOT/"clean"

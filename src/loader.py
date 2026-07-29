@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 import pandas as pd
-from connect import get_engine
+from connector import get_engine
 
 load_dotenv()
 
