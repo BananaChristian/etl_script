@@ -15,6 +15,7 @@ files_to_tables = {
         "SMS.csv": "sms",
         "FibreSubscriptions.csv": "fibresubscriptions",
         "InternetBundleSales.csv": "internetbundlesales",
+        "MSISDN.csv": "msisdn",
 }
 
 for file_name, table_name in files files_to_tables.items():
