@@ -21,7 +21,7 @@ def load(data_dir=None):
     data_dir = data_dir or os.getenv("data_dir")
     engine = get_engine()
  
-    for file_name, table_name in FILES_TO_TABLES.items():
+    for file_name, table_name in files_to_tables.items():
         file_path = os.path.join(data_dir, file_name)
  
         if not os.path.exists(file_path):
